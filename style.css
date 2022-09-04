@@ -1,0 +1,34 @@
+/* style.css */
+
+:root {
+    --box-bg-color: lightgrey;
+}
+
+*,
+*::before,
+*::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+#gameboard {
+    padding: 10px;
+    display: grid;
+    grid-template-columns: repeat(3, 100px);
+    grid-template-rows: repeat(3, 100px);
+    gap: 20px;
+}
+
+.box {
+    background-color: var(--box-bg-color);
+    font-size: 40px;
+    font-weight: bold;
+
+    display: grid;
+    place-content: center;
+}
+
+button {
+    padding: 10px 20px;
+}
