@@ -14,7 +14,7 @@ const displayControl = (function(document) {
         if(this.textContent == "" && gameControl.getHumanPlayerSymbol() != "") {
             console.log(this.getAttribute('data-id'));
             // this.textContent = "M";
-            this.textContent = gameControl.getHumanPlayerSymbol();
+            this.textContent = mainGameContorl.getActivePlayerSymbol().symbol;
             setLastDivId(this.getAttribute('data-id'));
         }
     }
@@ -38,7 +38,7 @@ const displayControl = (function(document) {
     return {
         getLastDivId,
         resetDisplay
-    }
+    };
 
 })(document);
 
@@ -59,11 +59,14 @@ const gameControl = (function(document) {
     
     // setting the human player symbol according to the textcontent of the button if only the human player symbol is empty
     function setHumanPlayerSymbol() {
-        if(humanPlayerSymbol == "") {
+        if(displayControl.getLastDivId() == "") {
+            console.log("Symbol choice button was pressed");
             humanPlayerSymbol = this.textContent ;
             console.log("The choice of the human player symbol is " + humanPlayerSymbol);
+            mainGameContorl.initMainGameControl();
+        } else {
+            console.log('Symbol choice button was pressed but you need to restart the game since already made marks in game.')
         }
-        console.log("Symbol choice button was pressed");
     }
 
     function reset() {
@@ -78,11 +81,67 @@ const gameControl = (function(document) {
 
     return {
         getHumanPlayerSymbol
-    }
+    };
 
 })(document);
 
 
-const mainGameContorl = (function() {
+const Player = function(name, symbol, playerNumber) {
+    return {name, symbol, playerNumber};
+};
 
-});
+const mainGameContorl = (function() {
+    
+    let player1, player2, activePlayerSeries;
+
+    let setGamePlayers = function() {
+        console.log("set game player works");
+        let humanPlayerSymbol = gameControl.getHumanPlayerSymbol();
+
+        // Player 1 is  always going to be the player who chooes his symbol from the buttons
+        // Player 2 is going to be the player to whom the left out symbol is assigned
+        player1 = Player(humanPlayerSymbol == "X" ? 'cross' : 'zero', humanPlayerSymbol, '1');
+        player2 = Player(humanPlayerSymbol == "X" ? 'zero' : 'cross', humanPlayerSymbol == "X" ? 'O' : 'X', '2');
+    };
+
+    // The player which has symbol as X will always get first chance.
+    let setActivePlayerSeries = (function() {
+        console.log("set active player works");
+        activePlayerSeries = [];
+        if(player1.symbol == "X") {
+            activePlayerSeries = [player1, player2, player1, player2, player1, player2, player1, player2, player1];
+        } else {
+            activePlayerSeries = [player2, player1, player2, player1, player2, player1, player2, player1, player2];
+        }
+    });
+
+    let printActivePlayerSeries = function() {
+        console.log(activePlayerSeries);
+    };
+
+    // returns the player whose chance is next to make a move on the board
+    const getActivePlayerSymbol = function() {
+        console.log('get active work player works');
+        return(activePlayerSeries.pop());
+    };
+
+    const initMainGameControl = function() {
+        console.log("Starting the game");
+        setGamePlayers();
+        setActivePlayerSeries();
+    };
+
+    const printPlayer = function() {
+        console.log(player1);
+        console.log(player2);
+    };
+
+    return {
+        getActivePlayerSymbol,
+        initMainGameControl,
+        getActivePlayerSymbol,
+        printPlayer,
+        printActivePlayerSeries
+    };
+
+})();
