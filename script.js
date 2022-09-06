@@ -13,9 +13,20 @@ const displayControl = (function(document) {
     function markActiveSymbol() {
         if(this.textContent == "" && gameControl.getHumanPlayerSymbol() != "") {
             console.log(this.getAttribute('data-id'));
-            // this.textContent = "M";
-            this.textContent = mainGameContorl.getActivePlayerSymbol().symbol;
-            setLastDivId(this.getAttribute('data-id'));
+            let currentPlayer = mainGameContorl.getActivePlayerSymbol();
+            this.textContent = currentPlayer.symbol;
+            // call the other fucntion which in turn call the reset function which are required on filling of a position in board.
+            eventFireAtBoradBoxClick(currentPlayer, this.getAttribute('data-id'));
+        } 
+    }
+
+    // calls the necessary fucntions when a position in the box is marked
+    function eventFireAtBoradBoxClick(player, divId) {
+        console.log('necessary events fired');
+        setLastDivId(divId);
+        gameBoardLogic.populateMainBoard(player);
+        if(gameBoardLogic.checkBoardFilled() == true) {
+            gameControl.reset();
         }
     }
 
@@ -31,6 +42,7 @@ const displayControl = (function(document) {
 
     // clears the game board marks of the players
     const resetDisplay = function() {
+        console.log('reset display works');
         boxes.forEach((box) => box.textContent = "");
         setLastDivId("");
     };
@@ -60,18 +72,21 @@ const gameControl = (function(document) {
     // setting the human player symbol according to the textcontent of the button if only the human player symbol is empty
     function setHumanPlayerSymbol() {
         if(displayControl.getLastDivId() == "") {
-            console.log("Symbol choice button was pressed");
-            humanPlayerSymbol = this.textContent ;
-            console.log("The choice of the human player symbol is " + humanPlayerSymbol);
+            humanPlayerSymbol = this.textContent;
+            console.log("Symbol choice button was pressed" + humanPlayerSymbol);
             mainGameContorl.initMainGameControl();
+            gameBoardLogic.initGameBoardLogic();
         } else {
             console.log('Symbol choice button was pressed but you need to restart the game since already made marks in game.')
         }
     }
 
     function reset() {
+        console.log('restart button was pressed');
         humanPlayerSymbol = "";
         displayControl.resetDisplay();
+        mainGameContorl.resetMainGameControl();
+        gameBoardLogic.resetMainGameBoardLogic();
     }
 
     // return the human player sysmbol
@@ -80,7 +95,8 @@ const gameControl = (function(document) {
     };
 
     return {
-        getHumanPlayerSymbol
+        getHumanPlayerSymbol,
+        reset
     };
 
 })(document);
@@ -115,10 +131,6 @@ const mainGameContorl = (function() {
         }
     });
 
-    let printActivePlayerSeries = function() {
-        console.log(activePlayerSeries);
-    };
-
     // returns the player whose chance is next to make a move on the board
     const getActivePlayerSymbol = function() {
         console.log('get active work player works');
@@ -131,6 +143,17 @@ const mainGameContorl = (function() {
         setActivePlayerSeries();
     };
 
+    const resetMainGameControl = function() {
+        player1 = undefined;
+        player2 = undefined;
+        activePlayerSeries = undefined;
+        console.log('reset main game control works.');
+    };
+    
+    let printActivePlayerSeries = function() {
+        console.log(activePlayerSeries);
+    };
+
     const printPlayer = function() {
         console.log(player1);
         console.log(player2);
@@ -140,8 +163,69 @@ const mainGameContorl = (function() {
         getActivePlayerSymbol,
         initMainGameControl,
         getActivePlayerSymbol,
+        resetMainGameControl,
         printPlayer,
-        printActivePlayerSeries
+        printActivePlayerSeries,
     };
 
+})();
+
+const gameBoardLogic = (function() {
+    let mainBoard;
+
+    const populateMainBoard = function(player) {
+        let divId = displayControl.getLastDivId();
+        divId = divId.split('');
+        let [row, col] = divId; 
+        mainBoard[row][col] = player;
+    };
+
+    const initGameBoardLogic = function() {
+        console.log("the game board is initialized");
+        mainBoard = [[],[],[]];
+    };
+
+    const checkWhichPlayerWin = function() {
+
+    };
+
+    const checkBoardFilled = function() {
+        if(!(mainBoard instanceof Array)) {
+            return false;
+        }
+
+        let count = 0;
+
+        for(let i=0; i<mainBoard.length; i++) {
+            for(let j=0; j<mainBoard[i].length; j++) {
+                if(mainBoard[i][j]) {
+                    count = count + 1;
+                }
+            }
+        }
+
+        if(count == 9) {
+            return true;
+        } else {
+            return false;
+        }
+        
+    };
+
+    const resetMainGameBoardLogic = function() {
+        mainBoard = undefined;
+        console.log("the main board is reset");
+    };
+
+    const printMainBoard = function() {
+        mainBoard.forEach((row) => console.log(row));
+    };
+
+    return {
+        initGameBoardLogic,
+        populateMainBoard,
+        checkBoardFilled,
+        resetMainGameBoardLogic,
+        printMainBoard
+    }
 })();
