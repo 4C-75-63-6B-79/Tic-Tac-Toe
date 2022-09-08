@@ -8,9 +8,13 @@
     </head>
 
     <body>
+        <h1>Tic Tac Toe</h1>
         <div id="symbol-choice">
+            <h3>Choose your Symbol</h3>
             <button id="cross">X</button>
             <button id="zero">O</button>
+            <label for="lonely-mode">Lonely</label>
+            <input type="checkbox" id="lonely-mode">
         </div>
         <div id="gameboard">
             <div class="box" data-id="00"></div>
@@ -26,5 +30,6 @@
         <div>
             <button id="restart">RESTART</button>
         </div>
+        <div id="game-over"></div>
     </body>
 </html>

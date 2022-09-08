@@ -12,8 +12,42 @@
     box-sizing: border-box;
 }
 
+body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: whitesmoke;
+}
+
+h1 {
+    padding: 0.5em;
+    background-color: lightgoldenrodyellow;
+    text-align: center;
+    width: 100vw;
+    flex: 0 0 auto;
+}
+
+#symbol-choice {
+    padding: 1em;
+    background-color: lightpink;
+    width: 100vw;
+
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+}
+
+#symbol-choice > input {
+    width: 40px;
+    flex: 0 1 auto;
+
+}
+
 #gameboard {
-    padding: 10px;
+    padding: 30px;
+    flex: 1 1 auto;
     display: grid;
     grid-template-columns: repeat(3, 100px);
     grid-template-rows: repeat(3, 100px);
@@ -24,11 +58,91 @@
     background-color: var(--box-bg-color);
     font-size: 40px;
     font-weight: bold;
+    border-radius: 5px;
 
     display: grid;
     place-content: center;
+
+    transition: transform 200ms ease-in;
+}
+
+.box:hover {
+    transform: translateY(-4px);
 }
 
 button {
-    padding: 10px 20px;
+    font-size: 1em;
+    padding: 0.5em 1.5em;
+    background-color: white;
+    border:none;
+    position: relative;
+    z-index: 0;
+    border-radius: 4em;
+    transition: transform 200ms ease,
+        box-shadow 100ms ease-out;
+}
+
+button:before,
+button::after {
+    position: absolute;
+    content: "";
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: white;
+    opacity: 1;
+    z-index: -1;
+    border-radius: 4em;
+    transform: scale(1);
+    transition: transform 400ms ease,
+        opacity 300ms ease-in-out;
+}
+
+button:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 5px 10px 0px lightskyblue;
+}
+
+button:hover::before {
+    transform: scale(1.4);
+    opacity: 0;
+}
+
+button:active {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 5px 0px lightskyblue;
+}
+
+#game-over {
+    font-size: 30px;
+    font-weight: bold;
+
+    padding: 20px 40px;
+    
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    position: absolute;
+    z-index: 1;
+    top: 50%;
+    left: 50%;
+    transform: scale(0);
+
+    border: 2px solid blue;
+    background-color: lavenderblush;
+}
+
+#game-over::before {
+    content: "";
+    background-color: lightgrey;
+    position: absolute;
+    top: calc(50% - 50vh);
+    left: calc(50% - 50wh);
+    width: 100vw;
+    height: 100vh;
+    z-index: -1;
+    opacity: 0.6;
 }
