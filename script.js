@@ -11,13 +11,30 @@ const displayControl = (function(document) {
 
     // Marks the div which is clicked
     function markActiveSymbol() {
-        if(this.textContent == "" && gameControl.getHumanPlayerSymbol() != "") {
+        if(this.textContent == "" && gameControl.getHumanPlayerSymbol() != "" && gameControl.getStartButton() == true) {
             console.log(this.getAttribute('data-id'));
-            let currentPlayerSymbol = mainGameContorl.getActivePlayerSymbol();
-            this.textContent = currentPlayerSymbol;
-            // call the other fucntion which in turn call the reset function which are required on filling of a position in board.
-            eventFireAtBoradBoxClick(currentPlayerSymbol, this.getAttribute('data-id'));
-            makeComputerPlayerMark();
+            if(gameControl.getLonelyMode() == true) {
+                if(gameControl.getHumanPlayerSymbol() == "X") {
+                    let currentPlayerSymbol = mainGameContorl.getActivePlayerSymbol();
+                    this.textContent = currentPlayerSymbol;
+                    // call the other fucntion which in turn call the reset function which are required on filling of a position in board.
+                    eventFireAtBoradBoxClick(currentPlayerSymbol, this.getAttribute('data-id'));
+                    makeComputerPlayerMark();
+                } else {
+                    let currentPlayerSymbol = mainGameContorl.getActivePlayerSymbol();
+                    this.textContent = currentPlayerSymbol;
+                    // call the other fucntion which in turn call the reset function which are required on filling of a position in board.
+                    eventFireAtBoradBoxClick(currentPlayerSymbol, this.getAttribute('data-id'));
+                    makeComputerPlayerMark();
+                }
+            } else {
+                let currentPlayerSymbol = mainGameContorl.getActivePlayerSymbol();
+                this.textContent = currentPlayerSymbol;
+                // call the other fucntion which in turn call the reset function which are required on filling of a position in board.
+                eventFireAtBoradBoxClick(currentPlayerSymbol, this.getAttribute('data-id'));
+                makeComputerPlayerMark();
+            }
+
             // gameBoardLogic.getEmptyDivId();
         } 
     }
@@ -26,8 +43,8 @@ const displayControl = (function(document) {
         if(gameControl.getLonelyMode() == false) {
             return;
         }
-        let divId = gameBoardLogic.getEmptyDivId(); 
-        // let divId = computerPlayer.computerPlayerMove();
+        // let divId = gameBoardLogic.getEmptyDivId(); 
+        let divId = computerPlayer.computerPlayerMove();
         let div = document.querySelector(`div[data-id="${divId}"]`);
         if(div != null && div.textContent == "")  {
             console.log(div.textContent);
@@ -67,6 +84,7 @@ const displayControl = (function(document) {
 
     return {
         getLastDivId,
+        makeComputerPlayerMark,
         resetDisplay
     };
 
@@ -77,10 +95,10 @@ const gameControl = (function(document) {
     // store the choice of the human player symbol
     let humanPlayerSymbol = "";
     let lonelyMode = false;
+    let startButton = false;
     
     // get the buttons used in the game to choose the symbol
     const buttons = Array.from(document.querySelectorAll('#symbol-choice > button'));
-
     // selecting and adding a event listnere to the restart button 
     document.getElementById("restart").addEventListener("click", reset);
 
@@ -88,6 +106,22 @@ const gameControl = (function(document) {
 
     // adding eventlistener to the control buttons
     buttons.forEach((button) => button.addEventListener('click', setHumanPlayerSymbol));
+
+    document.getElementById("start").addEventListener("click", start);
+
+    function start() {
+        if(lonelyMode == true && humanPlayerSymbol == "O" && startButton == false) {
+            displayControl.makeComputerPlayerMark();
+            console.log("Start button pressed for the first time.");
+        } else {
+            console.log("Start button has already been pressed.")
+        }
+        startButton = true;
+    }
+
+    const getStartButton = function() {
+        return startButton;
+    }
 
     // setting the human player symbol according to the textcontent of the button if only the human player symbol is empty
     function setHumanPlayerSymbol() {
@@ -102,6 +136,7 @@ const gameControl = (function(document) {
     }
 
     function setLonelyMode() {
+        console.log("Setting lonely mode.");
         if(displayControl.getLastDivId() == "") {
             if(lonelyMode) {
                 lonelyMode = false;
@@ -147,6 +182,7 @@ const gameControl = (function(document) {
     function reset() {
         console.log('restart button was pressed');
         humanPlayerSymbol = "";
+        startButton = false;
         resetGameOverMsg();
         displayControl.resetDisplay();
         mainGameContorl.resetMainGameControl();
@@ -161,6 +197,7 @@ const gameControl = (function(document) {
     return {
         getHumanPlayerSymbol,
         getLonelyMode,
+        getStartButton,
         setGameOverMsg
     };
 
