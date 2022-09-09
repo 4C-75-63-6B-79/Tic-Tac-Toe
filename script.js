@@ -27,6 +27,7 @@ const displayControl = (function(document) {
             return;
         }
         let divId = gameBoardLogic.getEmptyDivId(); 
+        // let divId = computerPlayer.computerPlayerMove();
         let div = document.querySelector(`div[data-id="${divId}"]`);
         if(div != null && div.textContent == "")  {
             console.log(div.textContent);
@@ -92,7 +93,7 @@ const gameControl = (function(document) {
     function setHumanPlayerSymbol() {
         if(displayControl.getLastDivId() == "") {
             humanPlayerSymbol = this.textContent;
-            console.log("Symbol choice button was pressed" + humanPlayerSymbol);
+            console.log("Symbol choice button was pressed " + humanPlayerSymbol);
             mainGameContorl.initMainGameControl();
             gameBoardLogic.initGameBoardLogic();
         } else {
@@ -108,7 +109,7 @@ const gameControl = (function(document) {
                 lonelyMode = true;
             }
         } else {
-            console.log("Lonely mode can only be change if no move have been made");
+            console.log("Lonely mode can only be changed if no move have been made");
             this.checked = lonelyMode;
         }
     }
@@ -328,6 +329,10 @@ const gameBoardLogic = (function() {
         
     };
 
+    const getMainBoard = function() {
+        return mainBoard;
+    }
+
     const getEmptyDivId = function() {
         for(let i=0; i<mainBoard.length; i++) {
             for(let j=0; j<mainBoard[i].length; j++) {
@@ -349,10 +354,37 @@ const gameBoardLogic = (function() {
         checkWinner,
         checkBoardFilled,
         getEmptyDivId,
+        getMainBoard,
         printMainBoard
     }
 })();
 
 const computerPlayer = (function() {
+    let computerPlayerMove = function(computerSymbol) {
+        let tempMainBoard = gameBoardLogic.getMainBoard();
+        let bestScore = -10;
+        let bestMove = "";
+        for(let i=0; i<tempMainBoard.length; i++) {
+            for(let j=0; j<tempMainBoard[i].length; j++) {
+                if(tempMainBoard[i][j] == "1") {
+                    tempMainBoard[i][j] = computerSymbol;
+                    let score = minmax(tempMainBoard);
+                    tempMainBoard[i][j] = "1";
+                    if(bestScore < score) {
+                        bestScore = score;
+                        bestMove = i + "" + j;
+                    }
+                }
+            }
+        }
+        return bestMove;
+    };
 
+    function minmax(board) {
+        return 1;
+    }
+
+    return {
+        computerPlayerMove,
+    }
 })();

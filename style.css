@@ -39,12 +39,6 @@ h1 {
     gap: 20px;
 }
 
-#symbol-choice > input {
-    width: 40px;
-    flex: 0 1 auto;
-
-}
-
 #gameboard {
     padding: 30px;
     flex: 1 1 auto;
