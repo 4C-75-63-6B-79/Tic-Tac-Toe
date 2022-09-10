@@ -45,8 +45,8 @@ const displayControl = (function(document){
             div.removeEventListener('click', resetGameOverMessage);
             div.style.transform = 'scale(0)';
         }
-        gameControl.gameControlReset();
         displayControl.displayReset();
+        gameControl.initGameBoard();
     }
 
     return {
@@ -65,10 +65,9 @@ const buttonControl = (function(document) {
     function symbolButtonClicked() {
         console.log("------------------------");
         console.log(this.textContent + " symbol button clicked");
-        gameControl.gameControlReset();
         displayControl.displayReset();
         gameControl.setPlayers(this.textContent);
-        gameControl.makeFirstMove();
+        gameControl.initGameBoard();
     }
 
 
@@ -79,17 +78,22 @@ const gameControl = (function(){
     let humanPlayer, computerPlayer;
     let playersMoveSeries;
 
-    function initGameBoard()  {
+    let initGameBoard = function()  {
         gameBoard = [
             ['', '', ''],
             ['', '', ''],
             ['', '', '']
         ];
         playersMoveSeries = ['X', 'O', 'X', 'O', 'X', 'O', 'X', 'O', 'X'].reverse();
-        humanPlayer = "";
-        computerPlayer = "";
-        console.log("Game Board is initialized")
+        console.log("Game Board is initialized");
+        makeFirstMove();
     };
+
+    (function initPlayer() {
+        humanPlayer = "X";
+        computerPlayer = "O";
+        initGameBoard();
+    })();
 
     let setPlayers = function(hum_symbol) {
         console.log('players are set.');
@@ -104,9 +108,7 @@ const gameControl = (function(){
     }
 
     let getActivePlayer = function() {
-        // if(playersMoveSeries.length != 0) {
             return playersMoveSeries.pop();
-        // }
     };
 
     function getEmpytDiv() {
@@ -119,7 +121,7 @@ const gameControl = (function(){
         }
     }
 
-    let makeFirstMove = function() {
+    function makeFirstMove() {
         if(computerPlayer == "X") {
             let emptyDiv = getEmpytDiv();
             displayControl.markBox(emptyDiv);
@@ -128,26 +130,22 @@ const gameControl = (function(){
     };
 
     let humanMakeMove = function(dataId) {
-        if(humanPlayer == null) {
-            return;
-        }
         displayControl.markBox(dataId);
         gameBoardPopulate(humanPlayer, dataId);
         if(checkWinner()) {
             displayControl.displayGameOverMessage(checkWinner());
+            return;
         }
         computerMakeMove();
     };
 
     function computerMakeMove() {
-        if(computerPlayer == null) {
-            return;
-        }
         let emptyDiv = getEmpytDiv();
         displayControl.markBox(emptyDiv);
         gameBoardPopulate(computerPlayer, emptyDiv);
         if(checkWinner()) {
             displayControl.displayGameOverMessage(checkWinner());
+            return;
         }
     }
 
@@ -198,16 +196,10 @@ const gameControl = (function(){
         }
     }
 
-    let gameControlReset = function() {
-        console.log("Game board is reset.")
-        initGameBoard();
-    };
-
     return {
-        gameControlReset,
+        initGameBoard,
         setPlayers,
         getActivePlayer,
-        makeFirstMove,
         humanMakeMove,
         computerMakeMove,
         checkWinner
