@@ -39,15 +39,6 @@ h1 {
     gap: 20px;
 }
 
-#symbol-choice + div {
-    padding: 10px;
-    background-color: lightsalmon;
-    width: 100vw;
-    flex: 0 1 auto;
-    display: grid;
-    place-content: center;
-}
-
 #gameboard {
     padding: 30px;
     flex: 1 1 auto;
