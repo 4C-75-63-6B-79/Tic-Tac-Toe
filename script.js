@@ -43,8 +43,8 @@ const displayControl = (function(document) {
         if(gameControl.getLonelyMode() == false) {
             return;
         }
-        // let divId = gameBoardLogic.getEmptyDivId(); 
-        let divId = computerPlayer.computerPlayerMove();
+        let divId = gameBoardLogic.getEmptyDivId(); 
+        // let divId = computerPlayer.computerPlayerMove();
         let div = document.querySelector(`div[data-id="${divId}"]`);
         if(div != null && div.textContent == "")  {
             console.log(div.textContent);
@@ -319,6 +319,16 @@ const gameBoardLogic = (function() {
         return false;
     }
 
+    const getWinner = function() {
+        let col = checkCol();
+        let row = checkRow();
+        let diag = checkDiag();
+        if(col != '1' || row != '1' || diag != '1') {
+            let winPlayer = mainGameContorl.getWinnerPlayer(col, row, diag);
+            return winPlayer;
+        }
+    }
+
     function checkCol() {
         for(let i=0; i<mainBoard.length; i++) {
             if(mainBoard[0][i] == mainBoard[1][i] && mainBoard[1][i] == mainBoard[2][i] && mainBoard[0][i] != 1) {
@@ -390,6 +400,7 @@ const gameBoardLogic = (function() {
         populateMainBoard,
         checkWinner,
         checkBoardFilled,
+        getWinner,
         getEmptyDivId,
         getMainBoard,
         printMainBoard
@@ -397,15 +408,15 @@ const gameBoardLogic = (function() {
 })();
 
 const computerPlayer = (function() {
-    let computerPlayerMove = function(computerSymbol) {
+    let computerPlayerMove = function() {
         let tempMainBoard = gameBoardLogic.getMainBoard();
-        let bestScore = -10;
+        let bestScore = -Infinity;
         let bestMove = "";
         for(let i=0; i<tempMainBoard.length; i++) {
             for(let j=0; j<tempMainBoard[i].length; j++) {
                 if(tempMainBoard[i][j] == "1") {
-                    tempMainBoard[i][j] = computerSymbol;
-                    let score = minmax(tempMainBoard);
+                    tempMainBoard[i][j] = gameControl.getHumanPlayerSymbol() == 'X' ? "O" : 'X';;
+                    let score = minmax(tempMainBoard, 0, false);
                     tempMainBoard[i][j] = "1";
                     if(bestScore < score) {
                         bestScore = score;
@@ -417,8 +428,54 @@ const computerPlayer = (function() {
         return bestMove;
     };
 
-    function minmax(board) {
-        return 1;
+    function setScore(result) {
+        if(result == 'X' || result == "O") {
+            if(result == gameControl.getHumanPlayerSymbol()) {
+                return -1;
+            } else {
+                return 1;
+            }
+        } else {
+            if(gameBoardLogic.checkBoardFilled()) {
+                return 0;
+            }
+        }
+    }
+
+    function minmax(board, depth, isMaximizing) {
+        let result = gameBoardLogic.getWinner();
+        if(result != "X" || result != "O") {
+            let score = setScore(result);
+            return score;
+        } 
+        
+        if(isMaximizing) {
+            let bestScore = -Infinity;
+            for(let i=0; i<tempMainBoard.length; i++) {
+                for(let j=0; j<tempMainBoard[i].length; j++) {
+                    if(board[i][j] == "1") {
+                        board[i][j] = gameControl.getHumanPlayerSymbol() == 'X' ? "O" : 'X';
+                        let score = minmax(board, depth+1, false);
+                        board[i][j] = "1";
+                        bestScore = max(score, bestScore);
+                    }
+                }
+            }
+            return bestScore;
+        } else {
+            let bestScore = +Infinity;
+            for(let i=0; i<tempMainBoard.length; i++) {
+                for(let j=0; j<tempMainBoard[i].length; j++) {
+                    if(board[i][j] == "1") {
+                        board[i][j] = gameControl.getHumanPlayerSymbol;
+                        let score = minmax(board, depth+1, true);
+                        board[i][j] = "1";
+                        bestScore = min(score, bestScore);
+                    }
+                }
+            }
+            return bestScore;
+        }
     }
 
     return {
