@@ -62,14 +62,26 @@ const buttonControl = (function(document) {
     const symbolButtons = Array.from(document.querySelectorAll('#symbol-choice > button'));
     symbolButtons.forEach((button) => button.addEventListener('click', symbolButtonClicked));
 
+    symbolButtons[0].classList.add('selected-symbol');
+
+    function addSelectedSymbolClass() {
+        symbolButtons.forEach((button) => {
+            if(button.classList.contains('selected-symbol')) {
+                button.classList.remove('selected-symbol');
+            } else {
+                button.classList.add('selected-symbol');
+            }
+        });
+    }
+
     function symbolButtonClicked() {
         console.log("------------------------");
         console.log(this.textContent + " symbol button clicked");
+        addSelectedSymbolClass();
         displayControl.displayReset();
         gameControl.setPlayers(this.textContent);
         gameControl.initGameBoard();
     }
-
 
 })(document);
 

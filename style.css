@@ -108,6 +108,23 @@ button:active {
     box-shadow: 0 2px 5px 0px lightskyblue;
 }
 
+.selected-symbol,
+.selected-symbol::before,
+.selected-symbol::after {
+    background-color: lightgreen;
+}
+
+#mode-selector {
+    font-size: 1em;
+    padding: 1em;
+    background-color: lightskyblue;
+    width: 100vw;
+    display: flex;
+    flex: 0 1 auto;
+    justify-content: center;
+    gap: 10px;
+}
+
 #game-over {
     font-size: 30px;
     font-weight: bold;
