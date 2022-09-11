@@ -6,7 +6,9 @@ const displayControl = (function(document){
     function boxClicked() {
         console.log("------------------------");
         console.log(this.getAttribute('data-id') + ' is clicked.');
-        gameControl.humanMakeMove(this.getAttribute('data-id'));
+        if(this.textContent == "") {
+            gameControl.humanMakeMove(this.getAttribute('data-id'));
+        }
     }
 
     function markBox(dataId) {
@@ -30,7 +32,7 @@ const displayControl = (function(document){
         let p1 = document.createElement("p");
         let p2 = document.createElement("p");
         p1.textContent = "GAME OVER";
-        p2.textContent = symbol + " wins the game";
+        p2.textContent = symbol == 'tie' ? 'game is tied' : symbol + " wins the game";
         div.appendChild(p1);
         div.appendChild(p2);
         div.style.transform = 'scale(1)';
@@ -64,12 +66,12 @@ const buttonControl = (function(document) {
 
     symbolButtons[0].classList.add('selected-symbol');
 
-    function addSelectedSymbolClass() {
+    function addSelectedSymbolClass(clickedButton) {
         symbolButtons.forEach((button) => {
-            if(button.classList.contains('selected-symbol')) {
-                button.classList.remove('selected-symbol');
-            } else {
+            if(button == clickedButton && !button.classList.contains('selected-symbol')) {
                 button.classList.add('selected-symbol');
+            } else if(button != clickedButton && button.classList.contains('selected-symbol')) {
+                button.classList.remove('selected-symbol');
             }
         });
     }
@@ -77,18 +79,26 @@ const buttonControl = (function(document) {
     function symbolButtonClicked() {
         console.log("------------------------");
         console.log(this.textContent + " symbol button clicked");
-        addSelectedSymbolClass();
+        addSelectedSymbolClass(this);
+        console.log("-------------------------");
         displayControl.displayReset();
         gameControl.setPlayers(this.textContent);
         gameControl.initGameBoard();
     }
 
+    const difficultySelector = document.getElementById("difficulty-selector");
+    difficultySelector.addEventListener("click", setDifficulty);
+    
+    function setDifficulty() {
+        displayControl.displayReset();
+        gameControl.initGameBoard();
+        gameControl.setDifficulty();
+    }
+
 })(document);
 
 const gameControl = (function(){
-    let gameBoard;
-    let humanPlayer, computerPlayer;
-    let playersMoveSeries;
+    let gameBoard, humanPlayer, computerPlayer, playersMoveSeries, difficulty;
 
     let initGameBoard = function()  {
         gameBoard = [
@@ -104,6 +114,7 @@ const gameControl = (function(){
     (function initPlayer() {
         humanPlayer = "X";
         computerPlayer = "O";
+        difficulty = 'easy';
         initGameBoard();
     })();
 
@@ -111,6 +122,19 @@ const gameControl = (function(){
         console.log('players are set.');
         humanPlayer = hum_symbol;
         computerPlayer = hum_symbol == "X" ? 'O' : 'X';
+    };
+
+    let getPlayer = function(player) {
+        if(player == 'human') {
+            return humanPlayer;
+        } else if(player == 'computer') {
+            return computerPlayer;
+        }
+    }
+
+    let setDifficulty = function() {
+        difficulty = difficulty == 'easy' ? 'hard' : 'easy';
+        console.log('difficulty is set to ' + difficulty);
     };
 
     function gameBoardPopulate(symbol, dataId) {
@@ -135,7 +159,7 @@ const gameControl = (function(){
 
     function makeFirstMove() {
         if(computerPlayer == "X") {
-            let emptyDiv = getEmpytDiv();
+            let emptyDiv = difficulty == "easy" ? getEmpytDiv() : computerMoveCompute.getBestMoveId(gameBoard);
             displayControl.markBox(emptyDiv);
             gameBoardPopulate("X", emptyDiv);
         }
@@ -152,7 +176,7 @@ const gameControl = (function(){
     };
 
     function computerMakeMove() {
-        let emptyDiv = getEmpytDiv();
+        let emptyDiv = difficulty == "easy" ? getEmpytDiv() : computerMoveCompute.getBestMoveId(gameBoard);;
         displayControl.markBox(emptyDiv);
         gameBoardPopulate(computerPlayer, emptyDiv);
         if(checkWinner()) {
@@ -211,9 +235,84 @@ const gameControl = (function(){
     return {
         initGameBoard,
         setPlayers,
+        getPlayer,
+        setDifficulty,
         getActivePlayer,
         humanMakeMove,
         computerMakeMove,
         checkWinner
     };
+})();
+
+const computerMoveCompute = (function() {
+
+    let scoreData = {};
+
+    let getBestMoveId = function(gameBoard) {
+        let bestScore = -Infinity, bestMove;
+        setScoreData();
+
+        for(let i=0; i<gameBoard.length; i++) {
+            for(let j=0; j<gameBoard[i].length; j++) {
+                if(gameBoard[i][j] == "") {
+                    gameBoard[i][j] = gameControl.getPlayer('computer');
+                    let score = minmax(gameBoard,0,false);
+                    if(score > bestScore) {
+                        bestScore = score;
+                        bestMove = i+""+j;
+                    }
+                    gameBoard[i][j] = "";
+                }
+            }
+        }
+        console.log('move made on hard difficulty');
+        return bestMove;
+    };
+
+    function minmax(gameBoard,depth,isMaximizing) {
+        let result = gameControl.checkWinner();
+        if(result != null) {
+            let score = scoreData[result];
+            return score;
+        } 
+
+        if(isMaximizing) {
+            let bestScore = -Infinity;
+            for(let i=0; i<gameBoard.length; i++) {
+                for(let j=0; j<gameBoard[i].length; j++) {
+                    if(gameBoard[i][j] == "") {
+                        gameBoard[i][j] = gameControl.getPlayer('computer');
+                        let score = minmax(gameBoard,depth+1,false);
+                        bestScore = score > bestScore ? score : bestScore;
+                        gameBoard[i][j] = "";
+                    }
+                }
+            }
+            return bestScore;
+        } else {
+            let bestScore = Infinity;
+            for(let i=0; i<gameBoard.length; i++) {
+                for(let j=0; j<gameBoard[i].length; j++) {
+                    if(gameBoard[i][j] == "") {
+                        gameBoard[i][j] = gameControl.getPlayer('human');
+                        let score = minmax(gameBoard,depth+1,true);
+                        bestScore = score < bestScore ? score : bestScore;                         
+                        gameBoard[i][j] = "";
+                    }
+                }
+            }
+            return bestScore;
+        }
+    }
+
+    function setScoreData() {
+        scoreData = {};
+        scoreData[gameControl.getPlayer('human')] = -1;
+        scoreData[gameControl.getPlayer('computer')] = 1;
+        scoreData['tie'] = 0;
+    }
+
+    return {
+        getBestMoveId
+    }
 })();
