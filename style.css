@@ -1,9 +1,5 @@
 /* style.css */
 
-:root {
-    --box-bg-color: lightgrey;
-}
-
 *,
 *::before,
 *::after {
@@ -39,15 +35,6 @@ h1 {
     gap: 20px;
 }
 
-#symbol-choice + div {
-    padding: 10px;
-    background-color: lightsalmon;
-    width: 100vw;
-    flex: 0 1 auto;
-    display: grid;
-    place-content: center;
-}
-
 #gameboard {
     padding: 30px;
     flex: 1 1 auto;
@@ -58,7 +45,7 @@ h1 {
 }
 
 .box {
-    background-color: var(--box-bg-color);
+    background-color: lightgrey;
     font-size: 40px;
     font-weight: bold;
     border-radius: 5px;
@@ -66,11 +53,15 @@ h1 {
     display: grid;
     place-content: center;
 
-    transition: transform 200ms ease-in;
+    box-shadow: 2px 2px black;
+
+    transition: transform 200ms ease-in,
+    box-shadow 200ms ease-in;
 }
 
-.box:hover {
-    transform: translateY(-4px);
+.box:active {
+    transform: translate(2px);
+    box-shadow: 0px 0px black;
 }
 
 button {
@@ -81,6 +72,7 @@ button {
     position: relative;
     z-index: 0;
     border-radius: 4em;
+    box-shadow:  1px 1px 2px 0px lightgrey;
     transition: transform 200ms ease,
         box-shadow 100ms ease-out;
 }
@@ -117,6 +109,77 @@ button:active {
     box-shadow: 0 2px 5px 0px lightskyblue;
 }
 
+.selected-symbol,
+.selected-symbol::before,
+.selected-symbol::after {
+    background-color: lightgreen;
+}
+
+#mode-selector {
+    padding: 16px;
+    background-color: lightskyblue;
+    width: 100vw;
+    display: flex;
+    flex: 0 1 auto;
+    justify-content: center;
+    gap: 10px;
+}
+
+label {
+    font-size: 20px;
+    font-weight: bold;
+
+    display: flex;
+    flex-direction: row-reverse;
+    align-items: center;
+    gap: 10px;
+
+    padding: 4px 8px;
+    background-color: white;
+    border: transparent solid 1px;
+    border-radius: 10px;
+    box-shadow: 2px 4px 3px 0px lightgrey,
+                inset 1px 1px 2px 1px lightgrey;
+
+    position: relative;
+}
+
+label::before {
+    content: '';    
+    width: 8em;
+    height: 2em;
+    border-radius: 50px;
+    border: transparent solid 1px;
+    background-color: white;
+    box-shadow: inset 2px 2px 3px 2px lightgrey;
+}
+
+label::after {
+    content: 'Easy';
+    position: absolute;
+    left: 5.1em;
+    top: 7px;
+    background-color: lightcoral;
+    width: 4em;
+    height: 1.7em;
+    border-radius: 1em;
+    border: transparent solid 2px;
+    box-shadow: inset 0px 0px 2px lightpink;
+    display: grid;
+    place-content: center;
+    transition: transform 500ms ease-in;
+}
+
+input:checked + label::after {
+    transform: translateX(3.7em);
+    content: 'Hard';
+}
+
+input {
+    position: absolute;
+    opacity: 0;
+}
+
 #game-over {
     font-size: 30px;
     font-weight: bold;
@@ -135,6 +198,7 @@ button:active {
     transform: scale(0);
 
     border: 2px solid blue;
+    border-radius: 20px;
     background-color: lavenderblush;
 }
 
